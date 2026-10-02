@@ -47,7 +47,7 @@ public class Bot
                 }
             }
 
-            if (maxScore < 10)
+            if (maxScore < 4)
             {
                 bestMountain = null;
             }
@@ -186,22 +186,34 @@ public class Bot
                 var neighbourTile = GetTile(gameMessage, new WorldPosition(pos.X + i, pos.Y + j));
 
                 if (neighbourTile != null && neighbourTile.IsImpassable)
-                    deduction += 5;
+                    deduction += 1;
             }
         }
 
-        return POSITION_MULTIPLIER * pos.Y +
-               - Math.Abs(pos.Y - (int)(map.Height * 0.5f)) + 
+        if (deduction >= 4)
+            return 0;
+
+        GetRelativePosition(gameMessage, pos, out int relativeX, out int relativeY);
+
+        return POSITION_MULTIPLIER * relativeY +
+               - Math.Abs(relativeX - (int)(map.Height * 0.5f)) + 
                ELEVATION_MULTIPLIER * mountainTile.Elevation
                - deduction;
+    }
+
+    public void GetRelativePosition(TeamGameState gameMessage, WorldPosition worldPosition, out int x, out int y)
+    {
+        GameMap map = gameMessage.Map;
+
+        x = worldPosition.X - map.Origin.X;
+        y = worldPosition.Y - map.Origin.Y;
     }
 
     public Tile? GetTile(TeamGameState gameMessage, WorldPosition worldPosition)
     {
         GameMap map = gameMessage.Map;
 
-        int tileX = worldPosition.X - map.Origin.X;
-        int tileY = worldPosition.Y - map.Origin.Y;
+        GetRelativePosition(gameMessage, worldPosition, out int tileX, out int tileY);
 
         if (tileX < 0 || tileX >= 20 || tileY < 0 || tileY >= 20)
             return null;
