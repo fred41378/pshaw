@@ -9,9 +9,9 @@ public class Bot
     public int met1counter = 0;
     public int met2counter = 0;
     public int met3counter = 0;
-    public WorldPosition youngestDinoCurrPos = new(0, 0);
-    public WorldPosition youngestDinoPrevPos = new(0, 0);
-    public int youngestDinoCurrId = -1;
+    public WorldPosition targetDinoCurrPos = new(0, 0);
+    public WorldPosition targetDinoPrevPos = new(0, 0);
+    public int targetDinoCurrId = -1;
 
     /// <summary>
     /// This method should be used to initialize some variables you will need throughout the game.
@@ -53,48 +53,48 @@ public class Bot
             }
         }
 
-        if (youngestDinoCurrId == -1)
+        if (targetDinoCurrId == -1)
         {
             int youngestDinoAge = int.MaxValue;
             foreach (var dinosaur in gameMessage.Dinosaurs)
             {
                 if (dinosaur.Age < youngestDinoAge)
                 {
-                    youngestDinoCurrId = dinosaur.Id;
+                    targetDinoCurrId = dinosaur.Id;
                 }
             }
             if (bestMountain != null)
                 actions.Add(new TriggerVolcanoAction(bestMountain));
         }
-        var currDino = gameMessage.Dinosaurs.FirstOrDefault(dinosaur => dinosaur.Id == youngestDinoCurrId);
+        var currDino = gameMessage.Dinosaurs.FirstOrDefault(dinosaur => dinosaur.Id == targetDinoCurrId);
         
-        youngestDinoCurrPos = currDino?.Position;
-        if (youngestDinoCurrPos != null)
+        targetDinoCurrPos = currDino?.Position;
+        if (targetDinoCurrPos != null)
         {
             if (met1ready)
             {
-                actions.Add(new LaunchMeteorAction(youngestDinoCurrPos));
+                actions.Add(new LaunchMeteorAction(targetDinoCurrPos));
                 met1ready = false;
                 met1counter = 0;
             }
             else if (met2ready)
             {
                 var metLauchPos = new WorldPosition(0, 0);
-                if (youngestDinoCurrPos.Y > youngestDinoPrevPos.Y)
+                if (targetDinoCurrPos.Y > targetDinoPrevPos.Y)
                 {
-                    metLauchPos = new WorldPosition(youngestDinoCurrPos.X, youngestDinoCurrPos.Y + 2);
+                    metLauchPos = new WorldPosition(targetDinoCurrPos.X, targetDinoCurrPos.Y + 2);
                 }
-                else if (youngestDinoCurrPos.Y < youngestDinoPrevPos.Y)
+                else if (targetDinoCurrPos.Y < targetDinoPrevPos.Y)
                 {
-                    metLauchPos = new WorldPosition(youngestDinoCurrPos.X, youngestDinoCurrPos.Y - 2);
+                    metLauchPos = new WorldPosition(targetDinoCurrPos.X, targetDinoCurrPos.Y - 2);
                 }
-                else if (youngestDinoCurrPos.X > youngestDinoPrevPos.X)
+                else if (targetDinoCurrPos.X > targetDinoPrevPos.X)
                 {
-                    metLauchPos = new WorldPosition(youngestDinoCurrPos.X + 2, youngestDinoCurrPos.Y);
+                    metLauchPos = new WorldPosition(targetDinoCurrPos.X + 2, targetDinoCurrPos.Y);
                 }
                 else
                 {
-                    metLauchPos = new WorldPosition(youngestDinoCurrPos.X - 2, youngestDinoCurrPos.Y);
+                    metLauchPos = new WorldPosition(targetDinoCurrPos.X - 2, targetDinoCurrPos.Y);
                 }
                 actions.Add(new LaunchMeteorAction(metLauchPos));
                 met2ready = false;
@@ -103,21 +103,21 @@ public class Bot
             else if (met3ready)
             {
                 var metLauchPos = new WorldPosition(0, 0);
-                if (youngestDinoCurrPos.Y > youngestDinoPrevPos.Y)
+                if (targetDinoCurrPos.Y > targetDinoPrevPos.Y)
                 {
-                    metLauchPos = new WorldPosition(youngestDinoCurrPos.X, youngestDinoCurrPos.Y + 2);
+                    metLauchPos = new WorldPosition(targetDinoCurrPos.X, targetDinoCurrPos.Y + 2);
                 }
-                else if (youngestDinoCurrPos.Y < youngestDinoPrevPos.Y)
+                else if (targetDinoCurrPos.Y < targetDinoPrevPos.Y)
                 {
-                    metLauchPos = new WorldPosition(youngestDinoCurrPos.X, youngestDinoCurrPos.Y - 2);
+                    metLauchPos = new WorldPosition(targetDinoCurrPos.X, targetDinoCurrPos.Y - 2);
                 }
-                else if (youngestDinoCurrPos.X > youngestDinoPrevPos.X)
+                else if (targetDinoCurrPos.X > targetDinoPrevPos.X)
                 {
-                    metLauchPos = new WorldPosition(youngestDinoCurrPos.X + 2, youngestDinoCurrPos.Y);
+                    metLauchPos = new WorldPosition(targetDinoCurrPos.X + 2, targetDinoCurrPos.Y);
                 }
                 else
                 {
-                    metLauchPos = new WorldPosition(youngestDinoCurrPos.X - 2, youngestDinoCurrPos.Y);
+                    metLauchPos = new WorldPosition(targetDinoCurrPos.X - 2, targetDinoCurrPos.Y);
                 }
                 actions.Add(new LaunchMeteorAction(metLauchPos));
                 met3ready = false;
@@ -130,7 +130,7 @@ public class Bot
                 if (met1counter > gameMessage.Constants.MeteorDelay)
                 {
                     met1ready = true;
-                    youngestDinoCurrId = -1;
+                    targetDinoCurrId = -1;
                 }
             }
             if (!met2ready)
@@ -149,13 +149,13 @@ public class Bot
                     met3ready = true;
                 }
             }
-            youngestDinoPrevPos = youngestDinoCurrPos;
+            targetDinoPrevPos = targetDinoCurrPos;
         }
         else
         {
-            youngestDinoPrevPos = new WorldPosition(0, 0);
-            youngestDinoCurrPos = new WorldPosition(0, 0);
-            youngestDinoCurrId = -1;
+            targetDinoPrevPos = new WorldPosition(0, 0);
+            targetDinoCurrPos = new WorldPosition(0, 0);
+            targetDinoCurrId = -1;
         }
         // You can clearly do better than this. Have fun!!
         return actions;
