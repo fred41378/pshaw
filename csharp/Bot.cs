@@ -22,10 +22,15 @@ public class Bot
         // The engine applies only ONE action per turn (actions[0]); extra actions are ignored and reported in lastTickErrors.
         // Baseline strategy: grab the first dinosaur we can see and drop a meteor right on top of it. This is intentionally simple and far from optimal: it just shows the shape of a working bot.
         var firstDinosaur = gameMessage.Dinosaurs.FirstOrDefault();
+        var firstVolcano = gameMessage.Mountains.FirstOrDefault();
 
         if (firstDinosaur != null)
         {
-            actions.Add(new LaunchMeteorAction(firstDinosaur.Position));
+            if (gameMessage.Meteors.Length <= 0)
+            {
+                actions.Add(new LaunchMeteorAction(firstDinosaur.Position));
+            }
+            actions.Add(new TriggerVolcanoAction(new WorldPosition(firstVolcano.X, firstVolcano.Y)));
         }
 
         // You can clearly do better than this. Have fun!!
