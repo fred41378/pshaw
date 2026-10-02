@@ -55,13 +55,14 @@ public class Bot
 
         if (targetDinoCurrId == -1)
         {
-            int youngestDinoAge = int.MaxValue;
-            foreach (var dinosaur in gameMessage.Dinosaurs)
+            var bestDino = gameMessage.Dinosaurs
+                .OrderByDescending(dinosaur => CountNearbyDinosaurs(dinosaur, gameMessage.Dinosaurs, gameMessage.Constants.MeteorRadius))
+                .ThenBy(dinosaur => dinosaur.Age)
+                .FirstOrDefault();
+
+            if (bestDino != null)
             {
-                if (dinosaur.Age < youngestDinoAge)
-                {
-                    targetDinoCurrId = dinosaur.Id;
-                }
+                targetDinoCurrId = bestDino.Id;
             }
             if (bestMountain != null)
                 actions.Add(new TriggerVolcanoAction(bestMountain));
@@ -194,6 +195,23 @@ public class Bot
                - Math.Abs(pos.Y - (int)(map.Height * 0.5f)) + 
                ELEVATION_MULTIPLIER * mountainTile.Elevation
                - deduction;
+    }
+
+    public int CountNearbyDinosaurs(Dinosaur dinosaur, Dinosaur[] allDinosaurs, int radius)
+    {
+        int count = 0;
+        foreach (var dino in allDinosaurs)
+        {
+            if (dino.Id == dinosaur.Id)
+                continue;
+
+            if (Math.Abs(dino.Position.X - dinosaur.Position.X) <= radius &&
+                Math.Abs(dino.Position.Y - dinosaur.Position.Y) <= radius)
+            {
+                count++;
+            }
+        }
+        return count;
     }
 
     public Tile? GetTile(TeamGameState gameMessage, WorldPosition worldPosition)
